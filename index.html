@@ -16,13 +16,22 @@
     uniform sampler2D canvas;
     uniform sampler2D checkerboard;
     uniform vec2 resolution2;
+    uniform float time;
 
     void main(){
         vec2 pos = gl_FragCoord.xy / resolution.xy;
         vec4 canvasColor = texture2D(canvas,pos);
 
-        float checkX = mod(gl_FragCoord.x, resolution2.x) / resolution2.x;
-        float checkY = mod(gl_FragCoord.y, resolution2.y) / resolution2.y;
+        //direcion in x,y from -1 to 1
+        float xDir = (canvasColor.r - 0.5) / 0.5;
+        float yDir = (canvasColor.g - 0.5) / -0.5;
+        //make it a vector and normalize it
+        vec2 flowDir = normalize(vec2(xDir,yDir));
+
+
+
+        float checkX = mod( (mod(gl_FragCoord.x, resolution2.x) / resolution2.x) + (flowDir.x * time),1.0);
+        float checkY = mod( (mod(gl_FragCoord.y, resolution2.y) / resolution2.y) + (flowDir.y * time),1.0);
         vec4 checkColor = texture2D(checkerboard,vec2(checkX,checkY));
 
         gl_FragColor = vec4(checkColor.x * canvasColor.a,checkColor.y * canvasColor.a,checkColor.z * canvasColor.a,canvasColor.a);
@@ -46,6 +55,16 @@
                 <option value="8">8</option>
                 <option value="9">9</option>
                 <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="15">15</option>
+                <option value="16">16</option>
+                <option value="17">17</option>
+                <option value="18">18</option>
+                <option value="19">19</option>
+                <option value="20">20</option>
             </select>
         </div>
         <div>
