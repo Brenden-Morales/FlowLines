@@ -61,7 +61,7 @@ function canvasClick(event){
 
 var mainCanvas;
 var context;
-var lineWidth = 1;
+var lineWidth = 20;
 function initialize(){
     console.log("INITIALIZE");
     mainCanvas = document.getElementById("mainCanvas");
