@@ -96,7 +96,7 @@ function render(){
     totalTime += delta;
     startTime = Date.now();
     var uniformTime = (totalTime % 5000) / 5000;
-    console.log(uniformTime);
     shaderMaterial.uniforms.time.value = uniformTime;
+    stats.update();
     renderer.render(scene,camera)
 }
