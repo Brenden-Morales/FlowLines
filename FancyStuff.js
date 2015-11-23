@@ -12,10 +12,14 @@ var startTime = Date.now();
 
 var canvas;
 
+
+var checkerboard = THREE.ImageUtils.loadTexture( "checkerboard.o.jpg");
+
 function startRendering(){
 
     console.log("start Rendering");
     if(!threeInitialized){
+
         console.log("initialize three.js");
         canvas = document.getElementById("renderCanvas");
 
@@ -23,9 +27,9 @@ function startRendering(){
         renderer = new THREE.WebGLRenderer( {
             antialias: false,
             alpha : true,
-            canvas : document.getElementById("renderCanvas")} );
+            canvas : canvas} );
         renderer.setPixelRatio( window.devicePixelRatio );
-        renderer.setClearColor(0xff0000,0.1);
+        renderer.setClearColor(0xffffff,1);
         renderer.setSize( window.innerWidth, window.innerHeight );
 
         //setup camera
@@ -49,6 +53,8 @@ function startRendering(){
             uniforms: {
                 resolution: { type: "v2", value: new THREE.Vector2(window.innerWidth,window.innerHeight) },
                 canvas: { type: "t", value: tex },
+                checkerboard : {type : "t", value: checkerboard},
+                resolution2 : {type : "v2", value : new THREE.Vector2(256,256)}
             },
             vertexShader: document.getElementById("passThroughVertex").textContent,
             fragmentShader: document.getElementById("canvasFragment").textContent,

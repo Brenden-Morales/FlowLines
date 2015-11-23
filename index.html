@@ -14,11 +14,18 @@
 <script id="canvasFragment" type="x-shader/x-fragment">
     uniform vec2 resolution;
     uniform sampler2D canvas;
+    uniform sampler2D checkerboard;
+    uniform vec2 resolution2;
 
     void main(){
         vec2 pos = gl_FragCoord.xy / resolution.xy;
-        vec4 color = texture2D(canvas,pos);
-        gl_FragColor = color;
+        vec4 canvasColor = texture2D(canvas,pos);
+
+        float checkX = mod(gl_FragCoord.x, resolution2.x) / resolution2.x;
+        float checkY = mod(gl_FragCoord.y, resolution2.y) / resolution2.y;
+        vec4 checkColor = texture2D(checkerboard,vec2(checkX,checkY));
+
+        gl_FragColor = vec4(checkColor.x * canvasColor.a,checkColor.y * canvasColor.a,checkColor.z * canvasColor.a,canvasColor.a);
     }
 </script>
 
@@ -50,8 +57,8 @@
     </div>
 </body>
 
+<script src="libs/Three.js"></script>
 <script src="main.js"></script>
 <script src="FancyStuff.js"></script>
-<script src="libs/Three.js"></script>
 <script src="libs/stats.min.js"></script>
 </html>

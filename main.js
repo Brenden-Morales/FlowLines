@@ -28,11 +28,15 @@ function toggleRender(){
     var button = document.getElementById("toggleRender");
     if(button.innerText.indexOf("Not") !== -1){
         button.innerText = "Rendering";
+        mainCanvas.style.display = "none";
         startRendering();
     }
     else{
         button.innerText = "Not Rendering";
+        mainCanvas.style.display=null;
         stopRendering();
+
+
     }
 }
 
@@ -67,13 +71,13 @@ function canvasClick(event){
     }
 }
 
-var canvas;
+var mainCanvas;
 var context;
 var lineWidth = 1;
 function initialize(){
     console.log("INITIALIZE");
-    canvas = document.getElementById("mainCanvas");
-    context = canvas.getContext("2d");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    mainCanvas = document.getElementById("mainCanvas");
+    context = mainCanvas.getContext("2d");
+    mainCanvas.width = window.innerWidth;
+    mainCanvas.height = window.innerHeight;
 }
