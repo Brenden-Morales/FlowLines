@@ -23,9 +23,24 @@ function toggleDraw(){
     }
 }
 
+var rendering = false;
+function toggleRender(){
+    var button = document.getElementById("toggleRender");
+    if(button.innerText.indexOf("Not") !== -1){
+        button.innerText = "Rendering";
+        startRendering();
+    }
+    else{
+        button.innerText = "Not Rendering";
+        stopRendering();
+    }
+}
+
 
 var points = [];
 function canvasClick(event){
+    if(!drawing)
+        return;
     var clickArray = [event.clientX, event.clientY];
     points.push(clickArray);
     if(points.length === 2){

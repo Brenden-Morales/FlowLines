@@ -6,7 +6,8 @@
 </head>
 <body style="width:100%;height:100%;padding:0px;margin:0px;overflow:hidden" onload="initialize()">
     <canvas id="mainCanvas" style="position:absolute;z-index:1;width:100%;height:100%;padding:0px;margin:0px;" onclick="canvasClick(event,this)"></canvas>
-    <div style="position:relative;z-index:2;width:100%;height:100%;padding:0px;margin:0px;pointer-events:none">
+    <canvas id="renderCanvas" style="position:absolute;z-index:2;width:100%;height:100%;padding:0px;margin:0px;pointer-events:none;"></canvas>
+    <div style="position:relative;z-index:3;width:100%;height:100%;padding:0px;margin:0px;pointer-events:none">
         <div>
             Line Width:
             <select id="lineThickness" style="pointer-events:all" onchange="lineThicknessChanged()">
@@ -25,8 +26,13 @@
         <div>
             <button id="toggleDraw" style="pointer-events:all" onclick="toggleDraw()">Not Drawing</button>
         </div>
+        <div>
+            <button id="toggleRender" style="pointer-events:all" onclick="toggleRender()">Not Rendering</button>
+        </div>
     </div>
 </body>
 
 <script src="main.js"></script>
+<script src="FancyStuff.js"></script>
+<script src="libs/Three.js"></script>
 </html>
