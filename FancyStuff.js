@@ -16,6 +16,7 @@ var shaderMaterial;
 
 
 var checkerboard = THREE.ImageUtils.loadTexture( "checkerboard.o.jpg");
+var tex;
 
 function startRendering(){
 
@@ -48,13 +49,12 @@ function startRendering(){
         stats.domElement.style.zIndex = 100;
         document.getElementById("overlay").appendChild( stats.domElement );
 
-        var tex = new THREE.Texture(document.getElementById("mainCanvas"));
-        tex.needsUpdate = true;
+
 
         shaderMaterial = new THREE.ShaderMaterial({
             uniforms: {
                 resolution: { type: "v2", value: new THREE.Vector2(window.innerWidth,window.innerHeight) },
-                canvas: { type: "t", value: tex },
+                canvas: { type: "t", value: null },
                 checkerboard : {type : "t", value: checkerboard},
                 resolution2 : {type : "v2", value : new THREE.Vector2(256,256)},
                 time : {type : "f", value : 0}
@@ -70,6 +70,9 @@ function startRendering(){
         threeInitialized = true;
     }
 
+    tex = new THREE.Texture(document.getElementById("mainCanvas"));
+    tex.needsUpdate = true;
+    shaderMaterial.uniforms.canvas.value = tex;
     continueRender = true;
     canvas.style.display = null;
     animate();

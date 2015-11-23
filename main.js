@@ -9,19 +9,7 @@ function lineThicknessChanged(){
     lineWidth = width;
 }
 
-var drawing = false;
-
-function toggleDraw(){
-    var button = document.getElementById("toggleDraw");
-    if(button.innerText.indexOf("Not") !== -1){
-        button.innerText = "Drawing";
-        drawing = true;
-    }
-    else{
-        button.innerText = "Not Drawing";
-        drawing = false;
-    }
-}
+var drawing = true;
 
 var rendering = false;
 function toggleRender(){
