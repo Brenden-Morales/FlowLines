@@ -10,10 +10,14 @@ var continueRender = false;
 var totalTime = 0;
 var startTime = Date.now();
 
+var canvas;
+
 function startRendering(){
+
     console.log("start Rendering");
     if(!threeInitialized){
         console.log("initialize three.js");
+        canvas = document.getElementById("renderCanvas");
 
         //setup renderer
         renderer = new THREE.WebGLRenderer( {
@@ -21,7 +25,7 @@ function startRendering(){
             alpha : true,
             canvas : document.getElementById("renderCanvas")} );
         renderer.setPixelRatio( window.devicePixelRatio );
-        renderer.setClearColor(0xffffff,0);
+        renderer.setClearColor(0xff0000,0.1);
         renderer.setSize( window.innerWidth, window.innerHeight );
 
         //setup camera
@@ -38,19 +42,23 @@ function startRendering(){
         stats.domElement.style.zIndex = 100;
         document.getElementById("overlay").appendChild( stats.domElement );
 
-        var plane = new THREE.Mesh(new THREE.PlaneGeometry(window.innerWidth,window.innerHeight,1,1),new THREE.MeshBasicMaterial({color:0xff0000}));
+        var tex = new THREE.Texture(document.getElementById("mainCanvas"));
+        tex.needsUpdate = true;
+        var plane = new THREE.Mesh(new THREE.PlaneGeometry(window.innerWidth,window.innerHeight,1,1),new THREE.MeshBasicMaterial({color:0xffffff,map:tex}));
         scene.add(plane);
 
         threeInitialized = true;
     }
 
     continueRender = true;
+    canvas.style.display = null;
     animate();
 
 }
 
 function stopRendering(){
     continueRender = false;
+    canvas.style.display = "none";
 }
 
 
