@@ -44,7 +44,18 @@ function startRendering(){
 
         var tex = new THREE.Texture(document.getElementById("mainCanvas"));
         tex.needsUpdate = true;
-        var plane = new THREE.Mesh(new THREE.PlaneGeometry(window.innerWidth,window.innerHeight,1,1),new THREE.MeshBasicMaterial({color:0xffffff,map:tex}));
+
+        var shaderMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                resolution: { type: "v2", value: new THREE.Vector2(window.innerWidth,window.innerHeight) },
+                canvas: { type: "t", value: tex },
+            },
+            vertexShader: document.getElementById("passThroughVertex").textContent,
+            fragmentShader: document.getElementById("canvasFragment").textContent,
+            transparent : true
+        });
+
+        var plane = new THREE.Mesh(new THREE.PlaneGeometry(window.innerWidth,window.innerHeight,1,1),shaderMaterial);
         scene.add(plane);
 
         threeInitialized = true;
