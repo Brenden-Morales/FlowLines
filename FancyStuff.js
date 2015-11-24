@@ -57,7 +57,7 @@ function startRendering(){
                 canvas: { type: "t", value: null },
                 checkerboard : {type : "t", value: checkerboard},
                 resolution2 : {type : "v2", value : new THREE.Vector2(256,256)},
-                time : {type : "f", value : 0}
+                time : {type : "f", value : 0.0}
             },
             vertexShader: document.getElementById("passThroughVertex").textContent,
             fragmentShader: document.getElementById("canvasFragment").textContent,
@@ -93,13 +93,17 @@ function animate(){
     render();
 }
 
+function updateTime(value){
+    shaderMaterial.uniforms.time.value = value;
+}
+
 //the actual render function
 function render(){
     var delta = Date.now() - startTime;
     totalTime += delta;
     startTime = Date.now();
     var uniformTime = (totalTime % 5000) / 5000;
-    shaderMaterial.uniforms.time.value = uniformTime;
+    //shaderMaterial.uniforms.time.value = uniformTime;
     stats.update();
     renderer.render(scene,camera)
 }
