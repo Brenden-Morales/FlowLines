@@ -15,7 +15,7 @@ var canvas;
 var shaderMaterial;
 
 
-var checkerboard = THREE.ImageUtils.loadTexture( "checkerboard.o.jpg");
+var checkerboard = THREE.ImageUtils.loadTexture( "water.BMP");
 var tex;
 
 function startRendering(){
@@ -23,16 +23,14 @@ function startRendering(){
     console.log("start Rendering");
     if(!threeInitialized){
 
-        console.log("initialize three.js");
-        canvas = document.getElementById("renderCanvas");
-
         //setup renderer
         renderer = new THREE.WebGLRenderer( {
             antialias: false,
             alpha : true,
-            canvas : canvas} );
+            canvas : document.getElementById("renderCanvas")
+        });
         renderer.setPixelRatio( window.devicePixelRatio );
-        renderer.setClearColor(0xffffff,1);
+        //renderer.setClearColor(0xffffff,1);
         renderer.setSize( window.innerWidth, window.innerHeight );
 
         //setup camera
@@ -74,14 +72,14 @@ function startRendering(){
     tex.needsUpdate = true;
     shaderMaterial.uniforms.canvas.value = tex;
     continueRender = true;
-    canvas.style.display = null;
+    document.getElementById("renderCanvas").style.display = null;
     animate();
 
 }
 
 function stopRendering(){
     continueRender = false;
-    canvas.style.display = "none";
+    document.getElementById("renderCanvas").style.display = "none";
 }
 
 
@@ -103,7 +101,8 @@ function render(){
     totalTime += delta;
     startTime = Date.now();
     var uniformTime = (totalTime % 5000) / 5000;
-    //shaderMaterial.uniforms.time.value = uniformTime;
+    shaderMaterial.uniforms.time.value = uniformTime;
     stats.update();
-    renderer.render(scene,camera)
+    renderer.clear();
+    renderer.render(scene,camera);
 }
