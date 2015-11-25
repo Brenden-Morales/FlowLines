@@ -49,7 +49,7 @@ function canvasClick(event){
         var r = Math.round((xDelta * 128) + 128);
         var g = Math.round((yDelta * 128) + 128);
 
-        context.strokeStyle="rgb(" + r + "," + g + ",0)";
+        context.strokeStyle="rgba(" + r + "," + g + ",0,1)";
         context.lineWidth = lineWidth;
         context.beginPath();
         context.moveTo(points[0][0],points[0][1]);

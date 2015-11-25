@@ -34,7 +34,7 @@
         float checkY = mod( (mod(gl_FragCoord.y, resolution2.y) / resolution2.y) + (flowDir.y * time),1.0);
         vec4 checkColor = texture2D(checkerboard,vec2(checkX,checkY));
 
-        gl_FragColor = vec4(checkColor.x * canvasColor.a,checkColor.y * canvasColor.a,checkColor.z * canvasColor.a,canvasColor.a);
+        gl_FragColor = vec4(checkColor.x,checkColor.y,checkColor.z,canvasColor.a);
     }
 </script>
 

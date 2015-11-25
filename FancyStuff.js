@@ -15,7 +15,7 @@ var canvas;
 var shaderMaterial;
 
 
-var checkerboard = THREE.ImageUtils.loadTexture( "water.BMP");
+var checkerboard = THREE.ImageUtils.loadTexture( "checkerboard.o.jpg");
 var tex;
 
 function startRendering(){
@@ -69,6 +69,9 @@ function startRendering(){
     }
 
     tex = new THREE.Texture(document.getElementById("mainCanvas"));
+    tex.repeat.set( 1000, 1000 );
+    tex.magFilter = THREE.NearestFilter;
+    tex.minFilter = THREE.NearestFilter;
     tex.needsUpdate = true;
     shaderMaterial.uniforms.canvas.value = tex;
     continueRender = true;
@@ -100,7 +103,7 @@ function render(){
     var delta = Date.now() - startTime;
     totalTime += delta;
     startTime = Date.now();
-    var uniformTime = (totalTime % 5000) / 5000;
+    var uniformTime = (totalTime % 2500) / 2500;
     shaderMaterial.uniforms.time.value = uniformTime;
     stats.update();
     renderer.clear();
