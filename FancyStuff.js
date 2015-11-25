@@ -60,6 +60,8 @@ function startRendering(){
         var dt1 = new THREE.DataTexture(data,noiseSize,noiseSize,THREE.RGBAFormat);
         dt1.magFilter = THREE.NearestFilter;
         dt1.minFilter = THREE.NearestFilter;
+        dt1.wrapS = THREE.RepeatWrapping;
+        dt1.wrapT = THREE.RepeatWrapping;
         dt1.needsUpdate = true;
 
         var data2 = new Uint8Array(4 * size);
@@ -69,6 +71,8 @@ function startRendering(){
         var dt2 = new THREE.DataTexture(data2,noiseSize,noiseSize,THREE.RGBAFormat);
         dt2.magFilter = THREE.NearestFilter;
         dt2.minFilter = THREE.NearestFilter;
+        dt2.wrapS = THREE.RepeatWrapping;
+        dt2.wrapT = THREE.RepeatWrapping;
         dt2.needsUpdate = true;
 
 

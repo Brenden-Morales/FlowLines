@@ -26,20 +26,16 @@
         vec4 canvasColor = texture2D(canvas,pos);
 
         //direcion in x,y from -1 to 1
-        float xDir = (canvasColor.r - 0.5) / 0.5;
-        float yDir = (canvasColor.g - 0.5) / -0.5;
         //make it a vector and normalize it
-        vec2 flowDir = normalize(vec2(xDir,yDir));
+        vec2 flowDir = normalize(vec2(((canvasColor.r - 0.5) / 0.5),((canvasColor.g - 0.5) / -0.5)));
 
+        //get the position we're at on the texture
+        vec2 texPos = vec2((gl_FragCoord.x / resolution2.x) + (flowDir.x * time),(gl_FragCoord.y / resolution2.y)+ (flowDir.y * time));
 
-
-        float checkX = mod( (mod(gl_FragCoord.x, resolution2.x) / resolution2.x) + (flowDir.x * time),1.0);
-        float checkY = mod( (mod(gl_FragCoord.y, resolution2.y) / resolution2.y) + (flowDir.y * time),1.0);
-
-        vec4 tex1Color = texture2D(tex1,vec2(checkX,checkY));
+        vec4 tex1Color = texture2D(tex1,texPos);
         tex1Color *= (sin(time * M_PI * 2.0) + 1.0) / 2.0;
 
-        vec4 tex2Color = texture2D(tex2,vec2(checkX,checkY));
+        vec4 tex2Color = texture2D(tex2,texPos);
         tex2Color *= (sin((time * M_PI * 2.0) + M_PI) + 1.0) / 2.0;
 
         gl_FragColor = vec4(tex2Color.xyz + tex1Color.xyz,canvasColor.a);
