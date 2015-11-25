@@ -66,6 +66,7 @@ function initialize(){
     console.log("INITIALIZE");
     mainCanvas = document.getElementById("mainCanvas");
     context = mainCanvas.getContext("2d");
+    context.translate(0.5,0.5);
     mainCanvas.width = window.innerWidth;
     mainCanvas.height = window.innerHeight;
 }

@@ -14,8 +14,11 @@ var canvas;
 
 var shaderMaterial;
 
+var noise1;
+var noise2;
 
 var checkerboard = THREE.ImageUtils.loadTexture( "checkerboard.o.jpg");
+var water = THREE.ImageUtils.loadTexture( "water.BMP");
 var tex;
 
 function startRendering(){
@@ -48,12 +51,34 @@ function startRendering(){
         document.getElementById("overlay").appendChild( stats.domElement );
 
 
+        var noiseSize = 256;
+        var size = noiseSize * noiseSize;
+        var data = new Uint8Array(4 * size);
+        for(var i = 0; i < size * 4; i ++){
+            data[i] = Math.random() * 255 | 0;
+        }
+        var dt1 = new THREE.DataTexture(data,noiseSize,noiseSize,THREE.RGBAFormat);
+        dt1.magFilter = THREE.NearestFilter;
+        dt1.minFilter = THREE.NearestFilter;
+        dt1.needsUpdate = true;
+
+        var data2 = new Uint8Array(4 * size);
+        for(var i = 0; i < size * 4; i ++){
+            data2[i] = Math.random() * 255 | 0;
+        }
+        var dt2 = new THREE.DataTexture(data2,noiseSize,noiseSize,THREE.RGBAFormat);
+        dt2.magFilter = THREE.NearestFilter;
+        dt2.minFilter = THREE.NearestFilter;
+        dt2.needsUpdate = true;
+
+
 
         shaderMaterial = new THREE.ShaderMaterial({
             uniforms: {
                 resolution: { type: "v2", value: new THREE.Vector2(window.innerWidth,window.innerHeight) },
                 canvas: { type: "t", value: null },
-                checkerboard : {type : "t", value: checkerboard},
+                tex1 : {type : "t", value: dt1},
+                tex2 : {type : "t", value: dt2},
                 resolution2 : {type : "v2", value : new THREE.Vector2(256,256)},
                 time : {type : "f", value : 0.0}
             },
@@ -103,7 +128,7 @@ function render(){
     var delta = Date.now() - startTime;
     totalTime += delta;
     startTime = Date.now();
-    var uniformTime = (totalTime % 2500) / 2500;
+    var uniformTime = (totalTime % 60000) / 2500;
     shaderMaterial.uniforms.time.value = uniformTime;
     stats.update();
     renderer.clear();

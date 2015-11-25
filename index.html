@@ -14,9 +14,12 @@
 <script id="canvasFragment" type="x-shader/x-fragment">
     uniform vec2 resolution;
     uniform sampler2D canvas;
-    uniform sampler2D checkerboard;
+    uniform sampler2D tex1;
+    uniform sampler2D tex2;
     uniform vec2 resolution2;
     uniform float time;
+
+    #define M_PI 3.1415926535897932384626433832795
 
     void main(){
         vec2 pos = gl_FragCoord.xy / resolution.xy;
@@ -32,9 +35,14 @@
 
         float checkX = mod( (mod(gl_FragCoord.x, resolution2.x) / resolution2.x) + (flowDir.x * time),1.0);
         float checkY = mod( (mod(gl_FragCoord.y, resolution2.y) / resolution2.y) + (flowDir.y * time),1.0);
-        vec4 checkColor = texture2D(checkerboard,vec2(checkX,checkY));
 
-        gl_FragColor = vec4(checkColor.x,checkColor.y,checkColor.z,canvasColor.a);
+        vec4 tex1Color = texture2D(tex1,vec2(checkX,checkY));
+        tex1Color *= (sin(time * M_PI * 2.0) + 1.0) / 2.0;
+
+        vec4 tex2Color = texture2D(tex2,vec2(checkX,checkY));
+        tex2Color *= (sin((time * M_PI * 2.0) + M_PI) + 1.0) / 2.0;
+
+        gl_FragColor = vec4(tex2Color.xyz + tex1Color.xyz,canvasColor.a);
     }
 </script>
 
