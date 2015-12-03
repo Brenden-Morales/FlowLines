@@ -50,6 +50,7 @@
     void main(){
         vec4 pixelColor = vec4(0.0,0.0,0.0,0.0);
 
+        bool inBounds = false;
         //loop through segments
         const float delta = 1.0 / 32.0;
         for(float currentY = 0.0; currentY < 1.0; currentY += delta){
@@ -57,12 +58,15 @@
                 vec4 currentVertex = texture2D(segments,vec2(currentX,currentY));
                 vec4 previousVertex = texture2D(segments,vec2(currentX - delta,currentY));
                 if(currentVertex.a == 1.0 && previousVertex.a == 1.0){
-                    vec4 lineColor = getLineColor(previousVertex.xy,currentVertex.xy);
                     float distanceToLine = getDistanceToLine(previousVertex.xy,currentVertex.xy,gl_FragCoord.xy);
-                    float inBounds = float(distanceToLine < 2.5);
-                    pixelColor += vec4(lineColor * inBounds);
+                    inBounds = distanceToLine < 2.5;
+                    if(!inBounds)continue;
+                    vec4 lineColor = getLineColor(previousVertex.xy,currentVertex.xy);
+                    pixelColor += vec4(lineColor * float(inBounds));
+                    if(inBounds)break;
                 }
             }
+            if(inBounds)break;
         }
 
         vec2 point1 = vec2(100.0,100.0);
@@ -75,9 +79,9 @@
         float distanceToLine = getDistanceToLine(point1,point2,gl_FragCoord.xy);
 
         //check to see if this pixel is within the bounds of the line
-        float inBounds = float(distanceToLine < 5.0);
+        inBounds = distanceToLine < 5.0;
 
-        gl_FragColor = vec4(lineColor * inBounds);
+        gl_FragColor = vec4(lineColor * float(inBounds));
         gl_FragColor = pixelColor;
     }
 </script>
