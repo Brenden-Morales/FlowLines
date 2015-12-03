@@ -75,11 +75,13 @@ function startRendering(){
         dt2.wrapT = THREE.RepeatWrapping;
         dt2.needsUpdate = true;
 
+        var segTexture = new SegmentTexture({width:32});
 
 
         shaderMaterial = new THREE.ShaderMaterial({
             uniforms: {
                 resolution: { type: "v2", value: new THREE.Vector2(window.innerWidth,window.innerHeight) },
+                segments : {type : "t", value : segTexture.getTexture()}
             },
             vertexShader: document.getElementById("passThroughVertex").textContent,
             fragmentShader: document.getElementById("flowMapFragment").textContent,
