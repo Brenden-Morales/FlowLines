@@ -11,15 +11,8 @@
     }
 </script>
 
-<script id="canvasFragment" type="x-shader/x-fragment">
+<script id="flowMapFragment" type="x-shader/x-fragment">
     uniform vec2 resolution;
-    uniform sampler2D canvas;
-    uniform sampler2D tex1;
-    uniform sampler2D tex2;
-    uniform vec2 resolution2;
-    uniform float time;
-
-    #define M_PI 3.1415926535897932384626433832795
 
     //http://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
     float getDistanceToLine(vec2 v,vec2 w,vec2 p)

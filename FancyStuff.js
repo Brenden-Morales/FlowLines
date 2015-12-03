@@ -80,14 +80,9 @@ function startRendering(){
         shaderMaterial = new THREE.ShaderMaterial({
             uniforms: {
                 resolution: { type: "v2", value: new THREE.Vector2(window.innerWidth,window.innerHeight) },
-                canvas: { type: "t", value: null },
-                tex1 : {type : "t", value: dt1},
-                tex2 : {type : "t", value: dt2},
-                resolution2 : {type : "v2", value : new THREE.Vector2(256,256)},
-                time : {type : "f", value : 0.0}
             },
             vertexShader: document.getElementById("passThroughVertex").textContent,
-            fragmentShader: document.getElementById("canvasFragment").textContent,
+            fragmentShader: document.getElementById("flowMapFragment").textContent,
             transparent : true
         });
 
@@ -102,7 +97,6 @@ function startRendering(){
     tex.magFilter = THREE.NearestFilter;
     tex.minFilter = THREE.NearestFilter;
     tex.needsUpdate = true;
-    shaderMaterial.uniforms.canvas.value = tex;
     continueRender = true;
     document.getElementById("renderCanvas").style.display = null;
     animate();
@@ -133,7 +127,6 @@ function render(){
     totalTime += delta;
     startTime = Date.now();
     var uniformTime = (totalTime % 60000) / 2500;
-    shaderMaterial.uniforms.time.value = uniformTime;
     stats.update();
     renderer.clear();
     renderer.render(scene,camera);
