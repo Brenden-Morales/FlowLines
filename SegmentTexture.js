@@ -3,14 +3,9 @@
  */
 var SegmentTexture = function(options){
     var self = this instanceof  SegmentTexture ? this : Object.create(SegmentTexture.prototype);
+    TextureRenderer.call(self,options);
 
-    if(options.width === undefined){
-        throw "texture width is not defined";
-    }
-    if(options.width !== 32){
-        throw "shader is hardcoded to texture size of 32";
-    }
-    var width = options.width;
+    var width = 32;
 
     //make the texture
     var textureArray = new Float32Array(width * width * 4);
@@ -29,12 +24,28 @@ var SegmentTexture = function(options){
     texture.needsUpdate = true;
     texture.flipY = false;
 
-    self.getTexture = function(){
-        return texture;
+    var shaderMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+            segments : {type : "t", value : texture}
+        },
+        vertexShader: document.getElementById("passThroughVertex").textContent,
+        fragmentShader: document.getElementById("flowMapFragment").textContent,
+        transparent : true
+    });
+
+    //the plane that we will render the spat on
+    //TODO set the material to a custom shader gaussian creator thing
+    self.plane = new THREE.Mesh(new THREE.PlaneGeometry(self.cameraWidth,self.cameraHeight,1,1),shaderMaterial);
+
+    //add the plane to the scene
+    self.scene.add(self.plane);
+
+    self.getTexture = function(renderer){
+        self.render(renderer);
+        return self.renderTexture;
     };
 
-    self.getResolution = function(){
-        return new THREE.Vector2(width,width);
-    };
 
 };
+
+SegmentTexture.prototype = Object.create(TextureRenderer.prototype);

@@ -11,8 +11,17 @@
     }
 </script>
 
-<script id="flowMapFragment" type="x-shader/x-fragment">
+<script id="passThroughFragment" type="x-shader/x-fragment">
     uniform vec2 resolution;
+    uniform sampler2D texture;
+    void main(){
+        vec2 pos = gl_FragCoord.xy / resolution;
+        vec4 color = texture2D(texture,pos);
+        gl_FragColor = color;
+    }
+</script>
+
+<script id="flowMapFragment" type="x-shader/x-fragment">
     uniform sampler2D segments;
 
     //http://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
@@ -39,8 +48,6 @@
     }
 
     void main(){
-        vec2 pos = gl_FragCoord.xy / resolution.xy;
-
         vec4 pixelColor = vec4(0.0,0.0,0.0,0.0);
 
         //loop through segments
@@ -54,8 +61,6 @@
                     float distanceToLine = getDistanceToLine(previousVertex.xy,currentVertex.xy,gl_FragCoord.xy);
                     float inBounds = float(distanceToLine < 2.5);
                     pixelColor += vec4(lineColor * inBounds);
-                    //pixelColor.r = 1.0;
-                    //pixelColor.a = 1.0;
                 }
             }
         }
@@ -119,5 +124,6 @@
 <script src="main.js"></script>
 <script src="FancyStuff.js"></script>
 <script src="libs/stats.min.js"></script>
+<script src="TextureRenderer.js"></script>
 <script src="SegmentTexture.js"></script>
 </html>

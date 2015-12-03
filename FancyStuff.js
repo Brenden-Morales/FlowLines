@@ -75,18 +75,24 @@ function startRendering(){
         dt2.wrapT = THREE.RepeatWrapping;
         dt2.needsUpdate = true;
 
-        var segTexture = new SegmentTexture({width:32});
+        var segTexture = new SegmentTexture({
+            cameraWidth:window.innerWidth,
+            cameraHeight:window.innerHeight
+        });
+        var texture = segTexture.getTexture(renderer);
+        segTexture.getTexture(renderer);
 
 
-        shaderMaterial = new THREE.ShaderMaterial({
+        var shaderMaterial = new THREE.ShaderMaterial({
             uniforms: {
-                resolution: { type: "v2", value: new THREE.Vector2(window.innerWidth,window.innerHeight) },
-                segments : {type : "t", value : segTexture.getTexture()}
+                resolution : {type:"v2", value : new THREE.Vector2(window.innerWidth,window.innerHeight)},
+                texture : {type : "t", value : texture}
             },
             vertexShader: document.getElementById("passThroughVertex").textContent,
-            fragmentShader: document.getElementById("flowMapFragment").textContent,
+            fragmentShader: document.getElementById("passThroughFragment").textContent,
             transparent : true
         });
+
 
         var plane = new THREE.Mesh(new THREE.PlaneGeometry(window.innerWidth,window.innerHeight,1,1),shaderMaterial);
         scene.add(plane);
