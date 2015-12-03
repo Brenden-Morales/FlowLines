@@ -52,7 +52,7 @@
 
         bool inBounds = false;
         //loop through segments
-        const float delta = 1.0 / 32.0;
+        const float delta = 1.0 / 8.0;
         for(float currentY = 0.0; currentY < 1.0; currentY += delta){
             for(float currentX = delta; currentX < 1.0; currentX += delta * 2.0){
                 vec4 currentVertex = texture2D(segments,vec2(currentX,currentY));

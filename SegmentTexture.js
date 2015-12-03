@@ -5,7 +5,7 @@ var SegmentTexture = function(options){
     var self = this instanceof  SegmentTexture ? this : Object.create(SegmentTexture.prototype);
     TextureRenderer.call(self,options);
 
-    var width = 32;
+    var width = 8;
 
     //make the texture
     var textureArray = new Float32Array(width * width * 4);
