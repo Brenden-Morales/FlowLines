@@ -46,7 +46,7 @@
         //loop through segments
         const float delta = 1.0 / 32.0;
         for(float currentY = 0.0; currentY < 1.0; currentY += delta){
-            for(float currentX = delta; currentX < 1.0; currentX += delta){
+            for(float currentX = delta; currentX < 1.0; currentX += delta * 2.0){
                 vec4 currentVertex = texture2D(segments,vec2(currentX,currentY));
                 vec4 previousVertex = texture2D(segments,vec2(currentX - delta,currentY));
                 if(currentVertex.a == 1.0 && previousVertex.a == 1.0){
