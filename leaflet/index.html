@@ -24,7 +24,7 @@
     canvas.height = window.innerHeight;
     var context = canvas.getContext("2d");
     context.strokeStyle="red";
-    context.lineWidth = 10;
+    context.lineWidth = 3;
 
     var makeUrl = function(){
         var bbox =  "(" + map.getBounds().getSouth() + "," + map.getBounds().getWest() + "," + map.getBounds().getNorth() + "," + map.getBounds().getEast() + ");";
@@ -45,7 +45,7 @@
     map.on("moveend",function(event){
        console.log("moveend");
         context.clearRect(0,0,canvas.width,canvas.height);
-        if(map.getZoom() >= 17){
+        if(map.getZoom() >= 10){
             var url = makeUrl();
 
             var request = new XMLHttpRequest();
@@ -57,7 +57,7 @@
                 for(var i = 0; i < response.elements.length; i ++){
                     var element = response.elements[i];
                     if(element.type === "node"){
-                        nodes[element.id] = map.latLngToLayerPoint(L.latLng(element.lat,element.lon));
+                        nodes[element.id] = L.latLng(element.lat,element.lon);
                     }
                     else if (element.type === "way"){
                         ways.push(element.nodes);
@@ -67,12 +67,11 @@
                 //process ways
                 for(var i = 0; i < ways.length; i ++){
                     var way = ways[i];
-                    context.beginPath();
-                    context.moveTo(nodes[way[0].toString()].x,nodes[way[0].toString()].y);
-                    for(var j = 1; j < way.length; j ++){
-                        context.lineTo(nodes[way[j].toString()].x,nodes[way[j].toString()].y);
+                    var points = [];
+                    for(var j = 0; j < way.length; j ++){
+                        points.push(nodes[way[j].toString()]);
                     }
-                    context.stroke();
+                    new L.polyline(points).addTo(map);
                 }
 
 
