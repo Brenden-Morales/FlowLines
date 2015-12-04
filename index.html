@@ -82,7 +82,7 @@
         inBounds = distanceToLine < 5.0;
 
         gl_FragColor = vec4(lineColor * float(inBounds));
-        gl_FragColor = pixelColor;
+        gl_FragColor = vec4(normalize(pixelColor.xyz),pixelColor.w);
     }
 </script>
 
