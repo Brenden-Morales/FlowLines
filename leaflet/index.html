@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" style="width:100%;height:100%;padding:0px;margin:0px">
+<head>
+    <meta charset="UTF-8">
+    <title>Leaflet Test</title>
+</head>
+<body style="width:100%;height:100%;padding:0px;margin:0px">
+    <div id="map" style="position:absolute;top:0px;left:0px;z-index:1;width:100%;height:100%;padding:0px;margin:0px;"></div>
+    <canvas id="canvas" style="position:absolute;top:0px;left:0px;z-index:2;width:100%;height:100%;padding:0px;margin:0px;pointer-events:none"></canvas>
+</body>
+<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+<script src="leaflet-src.js"></script>
+<script>
+    var map = L.map('map').setView([40.757081, -73.984365], 18);
+    var canvasImageLayer = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+        maxZoom: 18,
+        id: 'brendenmorales.o25eegf6',
+        accessToken: 'pk.eyJ1IjoiYnJlbmRlbm1vcmFsZXMiLCJhIjoiY2lnZ3l4YzR1ODQ1eXZvbHVzNWV3MnNzaiJ9.5PTcNsA-WpPRADoUurkZTA'
+    }).addTo(map);
+
+    var canvas = document.getElementById("canvas");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    var context = canvas.getContext("2d");
+    context.strokeStyle="red";
+    context.lineWidth = 10;
+
+    var makeUrl = function(){
+        var bbox =  "(" + map.getBounds().getSouth() + "," + map.getBounds().getWest() + "," + map.getBounds().getNorth() + "," + map.getBounds().getEast() + ");";
+        var steps = [
+            '[out:json];',
+            'way',
+            '["highway"~"trunk|primary|secondary|residential|service|unclassified"]',
+            '["oneway"="yes"]',
+            '["area"!~"."]',
+            bbox,
+            '(._;>;);',
+            'out;'
+        ];
+        var url = 'http://overpass.osm.rambler.ru/cgi/interpreter?data=\n[out:json];\nway\n["highway"~"trunk|primary|secondary|residential|service|unclassified"]\n["oneway"="yes"]\n["area"!~"."]\n' + bbox + '\n(._;>;);\nout;';
+        return "http://overpass.osm.rambler.ru/cgi/interpreter?data=" + steps.join("");
+    };
+
+    map.on("moveend",function(event){
+       console.log("moveend");
+        context.clearRect(0,0,canvas.width,canvas.height);
+        if(map.getZoom() >= 17){
+            var url = makeUrl();
+
+            var request = new XMLHttpRequest();
+            request.onload = function(e){
+                var response = JSON.parse(this.responseText);
+                var nodes = {};
+                var ways = [];
+                //get all nodes and ways
+                for(var i = 0; i < response.elements.length; i ++){
+                    var element = response.elements[i];
+                    if(element.type === "node"){
+                        nodes[element.id] = map.latLngToLayerPoint(L.latLng(element.lat,element.lon));
+                    }
+                    else if (element.type === "way"){
+                        ways.push(element.nodes);
+                    }
+                }
+
+                //process ways
+                for(var i = 0; i < ways.length; i ++){
+                    var way = ways[i];
+                    context.beginPath();
+                    context.moveTo(nodes[way[0].toString()].x,nodes[way[0].toString()].y);
+                    for(var j = 1; j < way.length; j ++){
+                        context.lineTo(nodes[way[j].toString()].x,nodes[way[j].toString()].y);
+                    }
+                    context.stroke();
+                }
+
+
+            };
+            request.open("GET",url);
+            request.send();
+
+        }
+    });
+</script>
+</html>
