@@ -42,7 +42,9 @@
         return "http://overpass.osm.rambler.ru/cgi/interpreter?data=" + steps.join("");
     };
 
+    var lines = L.layerGroup().addTo(map);
     map.on("moveend",function(event){
+        lines.clearLayers();
        console.log("moveend");
         context.clearRect(0,0,canvas.width,canvas.height);
         if(map.getZoom() >= 10){
@@ -71,7 +73,7 @@
                     for(var j = 0; j < way.length; j ++){
                         points.push(nodes[way[j].toString()]);
                     }
-                    new L.polyline(points).addTo(map);
+                    lines.addLayer(L.polyline(points).addTo(map));
                 }
 
 
