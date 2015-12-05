@@ -6,10 +6,94 @@
 </head>
 <body style="width:100%;height:100%;padding:0px;margin:0px">
     <div id="map" style="position:absolute;top:0px;left:0px;z-index:1;width:100%;height:100%;padding:0px;margin:0px;"></div>
-    <canvas id="canvas" style="position:absolute;top:0px;left:0px;z-index:2;width:100%;height:100%;padding:0px;margin:0px;pointer-events:none"></canvas>
 </body>
 <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
 <script src="leaflet-src.js"></script>
+<script src="../libs/Three.js"></script>
+<script src="TextureRenderer.js"></script>
+<script src="FlowTexture.js"></script>
+
+<script id="passThroughVertex" type="x-shader/x-vertex">
+    void main()	{
+        gl_Position = vec4( position, 1.0 );
+    }
+</script>
+
+<script id="passThroughFragment" type="x-shader/x-fragment">
+    uniform vec2 resolution;
+    uniform sampler2D texture;
+    void main(){
+        vec2 pos = gl_FragCoord.xy / resolution;
+        vec4 color = texture2D(texture,pos);
+        gl_FragColor = color;
+    }
+</script>
+
+<script id="flowMapFragment" type="x-shader/x-fragment">
+    uniform sampler2D segments;
+
+    //http://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
+    float getDistanceToLine(vec2 v,vec2 w,vec2 p)
+    {
+        //Return minimum distance between line segment vw and point p
+        float l2 = pow(distance(v, w),2.0);  // i.e. |w-v|^2 -  avoid a sqrt
+        if (l2 == 0.0) return distance(p, v);   // v == w case
+        // Consider the line extending the segment, parameterized as v + t (w - v).
+        // We find projection of point p onto the line.
+        // It falls where t = [(p-v) . (w-v)] / |w-v|^2
+        float t = dot(p - v, w - v) / l2;
+        if (t < 0.0) return distance(p, v);       // Beyond the 'v' end of the segment
+        else if (t > 1.0) return distance(p, w);  // Beyond the 'w' end of the segment
+        vec2 projection = v + t * (w - v);  // Projection falls on the segment
+        return distance(p, projection);
+    }
+
+    //get the directional color,
+    //red is x, green is y
+    vec4 getLineColor(vec2 point1, vec2 point2)
+    {
+        return vec4(normalize(point2 - point1),0.0,1.0);
+    }
+
+    void main(){
+        vec4 pixelColor = vec4(0.0,0.0,0.0,0.0);
+
+        bool inBounds = false;
+        //loop through segments
+        const float delta = 1.0 / 32.0;
+        for(float currentY = 0.0; currentY < 1.0; currentY += delta){
+            for(float currentX = delta; currentX < 1.0; currentX += delta * 2.0){
+                vec4 currentVertex = texture2D(segments,vec2(currentX,currentY));
+                vec4 previousVertex = texture2D(segments,vec2(currentX - delta,currentY));
+                if(currentVertex.a == 1.0 && previousVertex.a == 1.0){
+                    float distanceToLine = getDistanceToLine(previousVertex.xy,currentVertex.xy,gl_FragCoord.xy);
+                    inBounds = distanceToLine < 2.5;
+                    if(!inBounds)continue;
+                    vec4 lineColor = getLineColor(previousVertex.xy,currentVertex.xy);
+                    pixelColor += vec4(lineColor * float(inBounds));
+                    if(inBounds)break;
+                }
+            }
+            if(inBounds)break;
+        }
+
+        vec2 point1 = vec2(100.0,100.0);
+        vec2 point2 = vec2(500.0,500.0);
+
+        //get the color of the line
+        vec4 lineColor = getLineColor(point1,point2);
+
+        //get the distance for this pixel to the line
+        float distanceToLine = getDistanceToLine(point1,point2,gl_FragCoord.xy);
+
+        //check to see if this pixel is within the bounds of the line
+        inBounds = distanceToLine < 5.0;
+
+        gl_FragColor = vec4(lineColor * float(inBounds));
+        gl_FragColor = vec4(normalize(pixelColor.xyz),pixelColor.w);
+    }
+</script>
+
 <script>
 
     var makeUrl = function(bounds){
@@ -42,7 +126,6 @@
 
     canvasTiles.on("tileload",function(event){
         var tile = event.tile;
-        var context = tile.getContext("2d");
 
         if(map.getZoom() > 10){
 
@@ -85,19 +168,19 @@
                         ways.push(element.nodes.map(function(obj){return obj.toString()}));
                     }
                 }
-                var context = this.tile.getContext("2d");
-                context.strokeStyle="#FF0000";
-                context.lineWidth = 5;
+
                 for(var i = 0; i < ways.length; i ++){
-                    var way = ways[i]
-                    context.beginPath();
-                    context.moveTo(nodes[way[0]].x,nodes[way[0]].y);
-                    for(var j = 1; j < way.length; j ++){
-                        var node = nodes[way[j]];
-                        context.lineTo(node.x,node.y);
+                    var way = ways[i];
+                    for(var j = 0; j < way.length; j ++){
+                        way[j] = nodes[way[j]];
                     }
-                    context.stroke();
                 }
+
+                var ft = new FlowTexture({
+                    canvas:this.tile,
+                    lines : ways
+                });
+                ft.getTexture();
 
             };
             request.send();
