@@ -23,11 +23,25 @@ var FlowTexture = function(options){
     //make the texture
     var textureArray = new Float32Array(width * width * 4);
     //just fill it with zeros
+    var currentSegment = segments.shift();
     for(var i = 0; i < textureArray.length; i +=4){
-        textureArray[i] = Math.round(Math.random() * self.canvas.width);
-        textureArray[i + 1] = Math.round(Math.random() * self.canvas.height);
-        textureArray[i + 2] = 0;
-        textureArray[i + 3] = 1.0;
+        if(currentSegment !== undefined){
+            var currentPoint = currentSegment.shift();
+            textureArray[i] = currentPoint.x;
+            textureArray[i + 1] = 512 - currentPoint.y;
+            textureArray[i + 2] = 0;
+            textureArray[i + 3] = 1.0;
+            if(currentSegment.length === 0){
+                currentSegment = segments.shift();
+            }
+        }
+        else{
+            textureArray[i] = 0;
+            textureArray[i+1] = 0;
+            textureArray[i+2] = 0;
+            textureArray[i+3] = 0;
+        }
+
     }
 
     //make the texture
