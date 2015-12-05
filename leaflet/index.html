@@ -11,23 +11,9 @@
 <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
 <script src="leaflet-src.js"></script>
 <script>
-    var map = L.map('map').setView([40.757081, -73.984365], 18);
-    var canvasImageLayer = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-        maxZoom: 18,
-        id: 'brendenmorales.o25eegf6',
-        accessToken: 'pk.eyJ1IjoiYnJlbmRlbm1vcmFsZXMiLCJhIjoiY2lnZ3l4YzR1ODQ1eXZvbHVzNWV3MnNzaiJ9.5PTcNsA-WpPRADoUurkZTA'
-    }).addTo(map);
 
-    var canvas = document.getElementById("canvas");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    var context = canvas.getContext("2d");
-    context.strokeStyle="red";
-    context.lineWidth = 3;
-
-    var makeUrl = function(){
-        var bbox =  "(" + map.getBounds().getSouth() + "," + map.getBounds().getWest() + "," + map.getBounds().getNorth() + "," + map.getBounds().getEast() + ");";
+    var makeUrl = function(bounds){
+        var bbox =  "(" + bounds.getSouth() + "," + bounds.getWest() + "," + bounds.getNorth() + "," + bounds.getEast() + ");";
         var steps = [
             '[out:json];',
             'way',
@@ -42,45 +28,79 @@
         return "http://overpass.osm.rambler.ru/cgi/interpreter?data=" + steps.join("");
     };
 
-    var lines = L.layerGroup().addTo(map);
-    map.on("moveend",function(event){
-        lines.clearLayers();
-       console.log("moveend");
-        context.clearRect(0,0,canvas.width,canvas.height);
-        if(map.getZoom() >= 10){
-            var url = makeUrl();
+    var map = L.map('map').setView([40.757081, -73.984365], 18);
+    var canvasImageLayer = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+        maxZoom: 18,
+        id: 'brendenmorales.o25eegf6',
+        accessToken: 'pk.eyJ1IjoiYnJlbmRlbm1vcmFsZXMiLCJhIjoiY2lnZ3l4YzR1ODQ1eXZvbHVzNWV3MnNzaiJ9.5PTcNsA-WpPRADoUurkZTA'
+    }).addTo(map);
+
+    var canvasTiles = L.tileLayer.canvas({
+        tileSize : 512
+    }).addTo(map);
+
+    canvasTiles.on("tileload",function(event){
+        var tile = event.tile;
+        var context = tile.getContext("2d");
+
+        if(map.getZoom() > 10){
+
+            var nwPoint = L.latLng(map.unproject(tile._tilePoint.multiplyBy(512), map.getZoom()));
+            var sePoint = L.latLng(map.unproject(tile._tilePoint.multiplyBy(512).add(new L.Point(512, 512)), map.getZoom()));
+            var bounds = L.latLngBounds(L.latLng(sePoint.lat,nwPoint.lng), L.latLng(nwPoint.lat,sePoint.lng));
+            var url = makeUrl(bounds);
+
+            var doProjection = function(point) {
+                var s = {
+                    x : tile._tilePoint.x * 512,
+                    y : tile._tilePoint.y * 512
+                };
+                var p = map.project({
+                    lat : point[1],
+                    lng : point[0]
+                }, this.zoom);
+                return {
+                    x : Math.round(p.x - s.x),
+                    y : Math.round(p.y - s.y)
+                };
+            };
+
 
             var request = new XMLHttpRequest();
-            request.onload = function(e){
+            request.doProjection = doProjection.bind(this);
+            request.tile = tile;
+            request.open("GET",url);
+            request.onload = function(event){
                 var response = JSON.parse(this.responseText);
                 var nodes = {};
                 var ways = [];
-                //get all nodes and ways
-                for(var i = 0; i < response.elements.length; i ++){
+
+                for(var i = 0; i < response.elements.length;i++){
                     var element = response.elements[i];
                     if(element.type === "node"){
-                        nodes[element.id] = L.latLng(element.lat,element.lon);
+                        nodes[element.id] = this.doProjection([element.lon,element.lat]);
                     }
                     else if (element.type === "way"){
-                        ways.push(element.nodes);
+                        ways.push(element.nodes.map(function(obj){return obj.toString()}));
                     }
                 }
-
-                //process ways
+                var context = this.tile.getContext("2d");
+                context.strokeStyle="#FF0000";
+                context.lineWidth = 5;
                 for(var i = 0; i < ways.length; i ++){
-                    var way = ways[i];
-                    var points = [];
-                    for(var j = 0; j < way.length; j ++){
-                        points.push(nodes[way[j].toString()]);
+                    var way = ways[i]
+                    context.beginPath();
+                    context.moveTo(nodes[way[0]].x,nodes[way[0]].y);
+                    for(var j = 1; j < way.length; j ++){
+                        var node = nodes[way[j]];
+                        context.lineTo(node.x,node.y);
                     }
-                    lines.addLayer(L.polyline(points).addTo(map));
+                    context.stroke();
                 }
-
 
             };
-            request.open("GET",url);
             request.send();
-
         }
     });
 </script>
